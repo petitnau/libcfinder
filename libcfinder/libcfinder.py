@@ -1,14 +1,7 @@
 import requests
 import os
+import pkg_resources
 from bs4 import BeautifulSoup
-
-
-def get_lib_offset(fun):
-    offsets = {}
-    for filename in os.listdir("../db"):
-        symbols = get_symbols_dict("../db/"+filename)
-        offsets[filename] = symbols[fun]
-    return offsets
 
 def get_symbols_dict(filename):
     f = open(filename, "r")
@@ -21,6 +14,17 @@ def get_symbols_dict(filename):
     f.close()
     return symbols
 
+def get_lib_offset(fun):
+    offsets = {}
+    for filename in os.listdir(get_file("")):
+        symbols = get_symbols_dict(get_file(filename))
+        offsets[filename] = symbols[fun]
+    return offsets
+
+def get_file(path):
+    _ROOT = os.path.abspath(os.path.dirname(__file__))
+    return os.path.join(_ROOT, 'db', path)
+
 def update():
     #domain = "https://libc.nullbyte.cat/"
     domain = "https://libc.blukat.me/"
@@ -32,14 +36,14 @@ def update():
     for lib in soup.find_all("a", {"class": "lib-item"}):
         libs.append(lib.string.strip())
 
-    if not os.path.exists("../db"):
-        os.makedirs("../db")
+    if not os.path.exists(get_file("")):
+        os.makedirs(get_file(""))
 
     for lib in libs:
-        if os.path.exists("../db/"+lib+".symbols"):
+        if os.path.exists(get_file(lib+".symbols")):
             continue
         r = requests.get(domain+"/d/"+lib+".symbols")
-        f = open("../db/"+lib+".symbols", "w")
+        f = open(get_file(lib+".symbols"), "w")
         f.write(r.text)
         f.close()
 
@@ -66,5 +70,5 @@ def find_libcv(functions):
     return found_list
 
 def find_fun_addr(libcv, kfun_name, kfun_addr, wfun_name):
-    symbols = get_symbols_dict("../db/"+libcv+".symbols")
+    symbols = get_symbols_dict(get_file(libcv+".symbols"))
     return kfun_addr-symbols[kfun_name]+symbols[wfun_name]
