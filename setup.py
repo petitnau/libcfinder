@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name='libcfinder',
-    version='1.0.1',
+    version='1.0.2',
     scripts=[],
     author='Roberto Pettinau',
     author_email='roberto.pettinau99@gmail.com',
